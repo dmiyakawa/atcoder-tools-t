@@ -2,6 +2,7 @@
 import argparse
 import sys
 import os
+import webbrowser
 
 from colorama import Fore
 
@@ -179,9 +180,12 @@ def main(prog, args, credential_supplier=None, use_local_session_cache=True, cli
         logger.info("Submitting {} as {}".format(code_path, metadata.lang.name))
         submission = client.submit_source_code(
             metadata.problem.contest, metadata.problem, metadata.lang, source)
-        logger.info("{} {}".format(
-            with_color("Done!", Fore.LIGHTGREEN_EX),
-            metadata.problem.contest.get_submissions_url(submission)))
+        submissions_url = metadata.problem.contest.get_submissions_url(submission)
+
+        logger.info("{} {}".format(with_color("Done!", Fore.LIGHTGREEN_EX), submissions_url))
+        # TODO: embed in config file
+        webbrowser.open(submissions_url)
+
         if config.submit_config.exec_after_submit:
             run_command(config.submit_config.exec_after_submit, args.dir)
 
