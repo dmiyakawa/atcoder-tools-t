@@ -6,6 +6,7 @@ import webbrowser
 
 from colorama import Fore
 
+from atcodertools.common.language import Language
 from atcodertools.tools.tester import USER_FACING_JUDGE_TYPE_LIST, DEFAULT_EPS
 from atcodertools.tools.utils import with_color
 
@@ -103,6 +104,10 @@ def main(prog, args, credential_supplier=None, use_local_session_cache=True, cli
                         type=str,
                         default=None)
 
+    parser.add_argument("--no-open-browser", "-n",
+                        help="Refrain from opening a browser for seeing the submisson url.",
+                        action="store_true")
+
     args = parser.parse_args(args)
     if args.config is None:
         if os.path.exists(USER_CONFIG_PATH):
@@ -122,10 +127,14 @@ def main(prog, args, credential_supplier=None, use_local_session_cache=True, cli
             "{0} is not found! You need {0} to use this submission functionality.".format(metadata_file))
         return False
 
-    lang_name = args.lang or metadata.lang.name
+    if args.lang:
+        lang = Language.from_name(args.lang)
+        logger.info(f"Choosing {lang.name} for the language instead of {metadata.lang.name}")
+    else:
+        lang = metadata.lang
 
     with open(args.config, "r") as f:
-        config = Config.load(f, {ConfigType.SUBMIT}, args, lang_name)
+        config = Config.load(f, {ConfigType.SUBMIT}, args, lang.name)
     if client is None:
         try:
             client = AtCoderClient()
@@ -177,14 +186,14 @@ def main(prog, args, credential_supplier=None, use_local_session_cache=True, cli
                 break
             except UnicodeDecodeError:
                 logger.warning("code wasn't recognized as {}".format(encoding))
-        logger.info("Submitting {} as {}".format(code_path, metadata.lang.name))
+        logger.info("Submitting {} as {}".format(code_path, lang.name))
         submission = client.submit_source_code(
-            metadata.problem.contest, metadata.problem, metadata.lang, source)
+            metadata.problem.contest, metadata.problem, lang, source)
         submissions_url = metadata.problem.contest.get_submissions_url(submission)
 
         logger.info("{} {}".format(with_color("Done!", Fore.LIGHTGREEN_EX), submissions_url))
-        # TODO: embed in config file
-        webbrowser.open(submissions_url)
+        if not args.no_open_browser:
+            webbrowser.open(submissions_url)
 
         if config.submit_config.exec_after_submit:
             run_command(config.submit_config.exec_after_submit, args.dir)
