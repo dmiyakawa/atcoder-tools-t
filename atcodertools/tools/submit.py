@@ -142,13 +142,13 @@ def main(prog, args, credential_supplier=None, use_local_session_cache=True, cli
 
     if args.force or tester.main("", tester_args):
         if not args.unlock_safety:
-            submissions = client.download_submission_list(
-                metadata.problem.contest)
+            submissions = client.download_submission_list(metadata.problem.contest)
             for submission in submissions:
                 if submission.problem_id == metadata.problem.problem_id:
-                    logger.error(with_color("Cancel submitting because you already sent some code to the problem. Please "
-                                            "specify -u to send the code. {}".format(
-                                                metadata.problem.contest.get_submissions_url(submission)), Fore.LIGHTRED_EX))
+                    logger.error(with_color(
+                        "Cancel submitting because you already sent some code to the problem. Please "
+                        "specify -u to send the code. {}".format(
+                            metadata.problem.contest.get_submissions_url(submission)), Fore.LIGHTRED_EX))
                     return False
 
         code_path = args.code or os.path.join(args.dir, metadata.code_filename)
@@ -168,8 +168,7 @@ def main(prog, args, credential_supplier=None, use_local_session_cache=True, cli
                 break
             except UnicodeDecodeError:
                 logger.warning("code wasn't recognized as {}".format(encoding))
-        logger.info(
-            "Submitting {} as {}".format(code_path, metadata.lang.name))
+        logger.info("Submitting {} as {}".format(code_path, metadata.lang.name))
         submission = client.submit_source_code(
             metadata.problem.contest, metadata.problem, metadata.lang, source)
         logger.info("{} {}".format(

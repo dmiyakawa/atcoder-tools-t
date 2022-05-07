@@ -2,8 +2,10 @@
 [![codecov](https://codecov.io/gh/kyuridenamida/atcoder-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/kyuridenamida/atcoder-tools)
 [![PyPI](https://img.shields.io/pypi/v/atcoder-tools.svg)](https://pypi.python.org/pypi/atcoder-tools)
 
-AtCoder Tools
+AtCoder Tools (T)
 ====
+若干オリジナルに直しを入れました
+
 Python 3.6 以降で動作する [AtCoder](https://atcoder.jp/) からサンプル入力をダウンロードしたりする際に便利なツールです。
 
 このツールには次のような機能があります。

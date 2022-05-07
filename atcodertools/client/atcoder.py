@@ -155,7 +155,8 @@ class AtCoderClient(metaclass=Singleton):
         contest_ids = sorted(contest_ids)
         return [Contest(contest_id) for contest_id in contest_ids]
 
-    def submit_source_code(self, contest: Contest, problem: Problem, lang: Union[str, Language], source: str) -> Submission:
+    def submit_source_code(self, contest: Contest, problem: Problem,
+                           lang: Union[str, Language], source: str) -> Submission:
         if isinstance(lang, str):
             warnings.warn(
                 "Parameter lang as a str object is deprecated. "
