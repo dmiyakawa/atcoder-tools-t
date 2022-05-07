@@ -96,6 +96,12 @@ def main(prog, args, credential_supplier=None, use_local_session_cache=True, cli
                         type=str,
                         default=None)
 
+    parser.add_argument("--lang",
+                        help=("Use the specified language setting instead of what is set in your config file."
+                              " May be possibly useful if you want to switch between Python and PyPy, for example."),
+                        type=str,
+                        default=None)
+
     args = parser.parse_args(args)
     if args.config is None:
         if os.path.exists(USER_CONFIG_PATH):
@@ -115,8 +121,10 @@ def main(prog, args, credential_supplier=None, use_local_session_cache=True, cli
             "{0} is not found! You need {0} to use this submission functionality.".format(metadata_file))
         return False
 
+    lang_name = args.lang or metadata.lang.name
+
     with open(args.config, "r") as f:
-        config = Config.load(f, {ConfigType.SUBMIT}, args, metadata.lang.name)
+        config = Config.load(f, {ConfigType.SUBMIT}, args, lang_name)
     if client is None:
         try:
             client = AtCoderClient()
