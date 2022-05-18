@@ -3,7 +3,7 @@ name = "atcoder-tools-t"
 packages = [
     {include = "atcodertools"}
 ]
-version = "2.13.0"
+version = "2.13.1"
 description = "Convenient modules & tools for AtCoder users, written in Python 3.6"
 authors = ["Daisuke Miyakawa <d.miyakawa@gmail.com>", "kyuridenamida <tyotyo3@gmail.com>"]
 license = "MIT"
@@ -13,12 +13,12 @@ readme="README.md"
 include = ["atcodertools/tools/templates/*", "atcodertools/tools/atcodertools-default.toml"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "=3.6"
 beautifulsoup4 = "^4.9.3"
 requests = "^2.25.1"
 colorama = "^0.4.4"
 toml = "^0.10.2"
-Jinja2 = "^3.1.0"
+Jinja2 = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

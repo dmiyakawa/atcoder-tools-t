@@ -41,8 +41,9 @@ def main():
     notify_if_latest_version_found()
 
     if len(sys.argv) < 2 or sys.argv[1] not in ("gen", "test", "submit", "codegen", "compile", "set", "version"):
+        command_name = sys.argv[0]
         print("Usage:")
-        print("{} gen -- to generate workspace".format(sys.argv[0]))
+        print("{} gen -- to generate workspace".format())
         print(
             "{} compile -- to compile codes in your workspace".format(sys.argv[0]))
         print("{} test -- to test codes in your workspace".format(sys.argv[0]))
