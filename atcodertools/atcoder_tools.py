@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import sys
 
 from atcodertools.release_management.version_check import (
@@ -41,18 +42,14 @@ def main():
     notify_if_latest_version_found()
 
     if len(sys.argv) < 2 or sys.argv[1] not in ("gen", "test", "submit", "codegen", "compile", "set", "version"):
-        command_name = sys.argv[0]
+        command_name = os.path.basename(sys.argv[0])
         print("Usage:")
-        print("{} gen -- to generate workspace".format())
-        print(
-            "{} compile -- to compile codes in your workspace".format(sys.argv[0]))
-        print("{} test -- to test codes in your workspace".format(sys.argv[0]))
-        print(
-            "{} submit -- to submit a code to the contest system".format(sys.argv[0]))
-        print(
-            "{} set -- to set some additional option(error value, language)".format(sys.argv[0]))
-        print(
-            "{} version -- show atcoder-tools version".format(sys.argv[0]))
+        print(f"{command_name} gen -- to generate workspace")
+        print(f"{command_name} compile -- to compile codes in your workspace")
+        print(f"{command_name} test -- to test codes in your workspace")
+        print(f"{command_name} submit -- to submit a code to the contest system")
+        print(f"{command_name} set -- to set some additional option(error value, language)")
+        print(f"{command_name} version -- show atcoder-tools version")
         sys.exit(-1)
 
     prog = " ".join(sys.argv[:2])
