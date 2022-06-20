@@ -66,7 +66,7 @@ def is_executable_file(file_name):
         )  # cppやtxtを省くのは一応の Cygwin 対策
 
 
-def infer_exec_file(filenames: List[str], excluded_exec_files: List[str]):
+def infer_exec_file(filenames: List[str], excluded_exec_files: List[str]) -> str:
     exec_files = [
         name
         for name in sorted(filenames)
@@ -74,18 +74,23 @@ def infer_exec_file(filenames: List[str], excluded_exec_files: List[str]):
     ]
 
     if len(exec_files) == 0:
+        # A hack for Python
+        if "main.py" in [os.path.basename(filename) for filename in filenames]:
+            logger.info("Choosing main.py for python script though it has no exec permission")
+            return "python main.py"
+
         raise NoExecutableFileError
     else:
         exec_file = exec_files[0]
-    if len(exec_files) >= 2:
-        logger.warning(
-            "{0}  {1}".format(
-                "There're multiple executable files. '{exec_file}' is selected.".format(
-                    exec_file=exec_file
-                ),
-                "The candidates were {exec_files}.".format(exec_files=exec_files),
+        if len(exec_files) >= 2:
+            logger.warning(
+                "{0}  {1}".format(
+                    "There're multiple executable files. '{exec_file}' is selected.".format(
+                        exec_file=exec_file
+                    ),
+                    "The candidates were {exec_files}.".format(exec_files=exec_files),
+                )
             )
-        )
     return exec_file
 
 

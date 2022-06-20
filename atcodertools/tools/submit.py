@@ -226,7 +226,7 @@ def main(
                 logger.error("submit_filename is not specified")
                 return False
             code_path = config.submit_config.submit_filename
-            logger.info(f"changed to submitfile: {code_path}")
+            logger.info(f"changed to submit file: {code_path}")
 
         for encoding in ["utf8", "utf-8_sig", "cp932"]:
             try:
