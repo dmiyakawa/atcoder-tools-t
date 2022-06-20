@@ -2,11 +2,11 @@ from atcodertools.executils.run_command import run_command
 
 
 class PostprocessConfig:
-
-    def __init__(self,
-                 exec_on_each_problem_dir: str = None,
-                 exec_on_contest_dir: str = None,
-                 ):
+    def __init__(
+        self,
+        exec_on_each_problem_dir: str = None,
+        exec_on_contest_dir: str = None,
+    ):
         self.exec_cmd_on_problem_dir = exec_on_each_problem_dir
         self.exec_cmd_on_contest_dir = exec_on_contest_dir
 

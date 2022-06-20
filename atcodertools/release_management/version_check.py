@@ -11,21 +11,20 @@ class VersionCheckError(Exception):
     pass
 
 
-cache_file_path = get_cache_file_path('version_cache.txt')
+cache_file_path = get_cache_file_path("version_cache.txt")
 
 HOUR_IN_SEC = 60 * 60
 
 
 def _fetch_latest_version():
-    dic = json.loads(requests.get(
-        "https://pypi.org/pypi/atcoder-tools/json").text)
+    dic = json.loads(requests.get("https://pypi.org/pypi/atcoder-tools/json").text)
     return dic["info"]["version"]
 
 
 def _get_latest_version_cache():
     if not os.path.exists(cache_file_path):
         return None
-    with open(cache_file_path, 'r') as f:
+    with open(cache_file_path, "r") as f:
         info = f.read().split()
         version, timestamp_sec = info[:2]
 
@@ -44,7 +43,7 @@ def _get_latest_version_cache():
 
 def store_version_cache(version):
     os.makedirs(os.path.dirname(cache_file_path), exist_ok=True)
-    with open(cache_file_path, 'w') as f:
+    with open(cache_file_path, "w") as f:
         f.write("{} {} {}".format(version, time.time(), __version__))
 
 

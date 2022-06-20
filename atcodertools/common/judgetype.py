@@ -52,18 +52,23 @@ class NormalJudge(Judge):
 
 
 class DecimalJudge(Judge):
-    def __init__(self,
-                 error_type: ErrorType = ErrorType.AbsoluteOrRelative,
-                 diff: float = 0.0
-                 ):
+    def __init__(
+        self, error_type: ErrorType = ErrorType.AbsoluteOrRelative, diff: float = 0.0
+    ):
         self.judge_type = JudgeType.Decimal
         self.error_type = error_type
         self.diff = diff
 
     def _verify_sub(self, output: float, expected: float) -> bool:
-        if self.error_type in [ErrorType.Absolute, ErrorType.AbsoluteOrRelative] and abs(expected - output) <= self.diff:
+        if (
+            self.error_type in [ErrorType.Absolute, ErrorType.AbsoluteOrRelative]
+            and abs(expected - output) <= self.diff
+        ):
             return True
-        if self.error_type in [ErrorType.Relative, ErrorType.AbsoluteOrRelative] and self._calc_absolute(output, expected):
+        if self.error_type in [
+            ErrorType.Relative,
+            ErrorType.AbsoluteOrRelative,
+        ] and self._calc_absolute(output, expected):
             return True
         return False
 
@@ -86,14 +91,12 @@ class DecimalJudge(Judge):
         return {
             "judge_type": self.judge_type.value,
             "error_type": self.error_type.value,
-            "diff": self.diff
+            "diff": self.diff,
         }
 
     @classmethod
     def from_dict(cls, dic):
-        r = DecimalJudge(
-            diff=dic["diff"]
-        )
+        r = DecimalJudge(diff=dic["diff"])
         r.error_type = ErrorType(dic["error_type"])
         return r
 

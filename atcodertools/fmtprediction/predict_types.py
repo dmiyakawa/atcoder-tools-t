@@ -6,8 +6,12 @@ from atcodertools.fmtprediction.models.type import Type
 from atcodertools.client.models.sample import Sample
 from atcodertools.fmtprediction.models.variable import SimpleVariable
 from atcodertools.fmtprediction.models.index import Index
-from atcodertools.fmtprediction.models.format import Format, SingularPattern, TwoDimensionalPattern, \
-    ParallelPattern
+from atcodertools.fmtprediction.models.format import (
+    Format,
+    SingularPattern,
+    TwoDimensionalPattern,
+    ParallelPattern,
+)
 from atcodertools.fmtprediction.token_manager import TokenManager
 
 
@@ -54,7 +58,7 @@ def is_int(text):
         return False
     if text[0] == "0":
         return False
-    if len(text) > 19 or (text[0] == '-' and len(text) > 20):
+    if len(text) > 19 or (text[0] == "-" and len(text) > 20):
         return False
     return True
 
@@ -68,7 +72,6 @@ def _convert_to_proper_type(value: str) -> Any:
 
 
 class TypePredictor:
-
     def __init__(self, fmt: Format[SimpleVariable]):
         self._fmt = fmt
         self._fetch_generator_instance = self._fetch_generator()
@@ -104,8 +107,7 @@ class TypePredictor:
         type_ = Type.from_py_type(type(value))
 
         if var.name in self._var_to_type:
-            self._var_to_type[var.name] = self._var_to_type[
-                var.name].intersect(type_)
+            self._var_to_type[var.name] = self._var_to_type[var.name].intersect(type_)
         else:
             self._var_to_type[var.name] = type_
             self._var_to_actual_value[var.name] = value
@@ -141,7 +143,9 @@ def merge_type_dicts(to_dict: Dict[str, Type], src_dict: Dict[str, Type]):
     return to_dict
 
 
-def predict_types(simple_format: Format[SimpleVariable], samples: List[Sample]) -> Dict[str, Type]:
+def predict_types(
+    simple_format: Format[SimpleVariable], samples: List[Sample]
+) -> Dict[str, Type]:
     res_type_dict = {}
     for sample in samples:
         token_manager = TokenManager(sample.get_input().split())
@@ -151,11 +155,16 @@ def predict_types(simple_format: Format[SimpleVariable], samples: List[Sample]) 
                 predictor.feed(token_manager.next())
             predictor.ensure_terminal()
             res_type_dict = merge_type_dicts(
-                res_type_dict,
-                predictor.get_typing_result())
+                res_type_dict, predictor.get_typing_result()
+            )
         except (
-                TooLessFetchesError, TooManyFetchesError, KeyError, InvalidLoopSizeError,
-                InvalidLoopIndexError, EvaluateError):
+            TooLessFetchesError,
+            TooManyFetchesError,
+            KeyError,
+            InvalidLoopSizeError,
+            InvalidLoopIndexError,
+            EvaluateError,
+        ):
             raise TypePredictionFailedError
 
     return res_type_dict

@@ -1,7 +1,18 @@
 import re
 from typing import Pattern, Callable
 
-from atcodertools.codegen.code_generators import cpp, java, rust, python, nim, d, cs, swift, go, julia
+from atcodertools.codegen.code_generators import (
+    cpp,
+    java,
+    rust,
+    python,
+    nim,
+    d,
+    cs,
+    swift,
+    go,
+    julia,
+)
 from atcodertools.codegen.models.code_gen_args import CodeGenArgs
 from atcodertools.tools.templates import get_default_template_path
 from atcodertools.codegen.code_style_config import INDENT_TYPE_TAB
@@ -13,27 +24,25 @@ class LanguageNotFoundError(Exception):
 
 
 class CodeStyle:
-    def __init__(self,
-                 indent_width=None,
-                 indent_type=None
-                 ):
+    def __init__(self, indent_width=None, indent_type=None):
         self.indent_width = indent_width
         self.indent_type = indent_type
 
 
 class Language:
-    def __init__(self,
-                 name: str,
-                 display_name: str,
-                 extension: str,
-                 submission_lang_pattern: Pattern[str],
-                 default_code_generator: Callable[[CodeGenArgs], str],
-                 default_template_path: str,
-                 default_code_style=None,
-                 compile_command=None,
-                 test_command=None,
-                 exec_filename=None
-                 ):
+    def __init__(
+        self,
+        name: str,
+        display_name: str,
+        extension: str,
+        submission_lang_pattern: Pattern[str],
+        default_code_generator: Callable[[CodeGenArgs], str],
+        default_template_path: str,
+        default_code_style=None,
+        compile_command=None,
+        test_command=None,
+        exec_filename=None,
+    ):
         self.name = name
         self.display_name = display_name
         self.extension = extension
@@ -45,8 +54,7 @@ class Language:
         self.test_command = test_command
         self.code_filename = "{filename}." + extension
         if platform.system() == "Windows":
-            self.exec_filename = exec_filename.replace(
-                "{exec_extension}", ".exe")
+            self.exec_filename = exec_filename.replace("{exec_extension}", ".exe")
         else:
             self.exec_filename = exec_filename.replace("{exec_extension}", "")
 
@@ -63,16 +71,22 @@ class Language:
         return self.code_filename.format(filename=filename)
 
     def get_exec_filename(self, filename: str):
-        return self.exec_filename.format(filename=filename, capitalized_filename=filename.capitalize())
+        return self.exec_filename.format(
+            filename=filename, capitalized_filename=filename.capitalize()
+        )
 
-    def get_test_command(self, filename: str, cwd: str = '.'):
-        exec_filename = cwd + '/'
+    def get_test_command(self, filename: str, cwd: str = "."):
+        exec_filename = cwd + "/"
         if platform.system() == "Windows":
             exec_filename += filename + ".exe"
         else:
             exec_filename += filename
         capitalized_filename = filename.capitalize()
-        return self.test_command.format(filename=filename, exec_filename=exec_filename, capitalized_filename=capitalized_filename)
+        return self.test_command.format(
+            filename=filename,
+            exec_filename=exec_filename,
+            capitalized_filename=capitalized_filename,
+        )
 
     @classmethod
     def from_name(cls, name: str):
@@ -80,20 +94,20 @@ class Language:
             if lang.name == name:
                 return lang
         raise LanguageNotFoundError(
-            "No language support for '{}'".format(ALL_LANGUAGE_NAMES))
+            "No language support for '{}'".format(ALL_LANGUAGE_NAMES)
+        )
 
 
 CPP = Language(
     name="cpp",
     display_name="C++",
     extension="cpp",
-    submission_lang_pattern=re.compile(
-        ".*C\\+\\+ \\(GCC 9.*|.*C\\+\\+14 \\(GCC 5.*"),
+    submission_lang_pattern=re.compile(".*C\\+\\+ \\(GCC 9.*|.*C\\+\\+14 \\(GCC 5.*"),
     default_code_generator=cpp.main,
-    default_template_path=get_default_template_path('cpp'),
+    default_template_path=get_default_template_path("cpp"),
     compile_command="g++ {filename}.cpp -o {filename} -std=c++14",
     test_command="{exec_filename}",
-    exec_filename="{filename}{exec_extension}"
+    exec_filename="{filename}{exec_extension}",
 )
 
 JAVA = Language(
@@ -102,10 +116,10 @@ JAVA = Language(
     extension="java",
     submission_lang_pattern=re.compile(".*Java8.*|.*Java \\(OpenJDK 11.*"),
     default_code_generator=java.main,
-    default_template_path=get_default_template_path('java'),
+    default_template_path=get_default_template_path("java"),
     compile_command="javac {filename}.java",
     test_command="java {capitalized_filename}",
-    exec_filename="{capitalized_filename}.class"
+    exec_filename="{capitalized_filename}.class",
 )
 
 RUST = Language(
@@ -114,10 +128,10 @@ RUST = Language(
     extension="rs",
     submission_lang_pattern=re.compile(".*Rust \\(1.*"),
     default_code_generator=rust.main,
-    default_template_path=get_default_template_path('rs'),
+    default_template_path=get_default_template_path("rs"),
     compile_command="rustc {filename}.rs -o {filename}",
     test_command="{exec_filename}",
-    exec_filename="{filename}{exec_extension}"
+    exec_filename="{filename}{exec_extension}",
 )
 
 PYTHON = Language(
@@ -126,10 +140,10 @@ PYTHON = Language(
     extension="py",
     submission_lang_pattern=re.compile(r".*Python3.*|^Python$|^Python \(3\..*"),
     default_code_generator=python.main,
-    default_template_path=get_default_template_path('py'),
+    default_template_path=get_default_template_path("py"),
     compile_command="python3 -mpy_compile {filename}.py",
     test_command="python3 {filename}.py`",
-    exec_filename="{filename}.pyc"
+    exec_filename="{filename}.pyc",
 )
 
 PYPY3 = Language(
@@ -138,10 +152,10 @@ PYPY3 = Language(
     extension="py",
     submission_lang_pattern=re.compile(r"PyPy3.*"),
     default_code_generator=python.main,
-    default_template_path=get_default_template_path('py'),
+    default_template_path=get_default_template_path("py"),
     compile_command="python3 -mpy_compile {filename}.py",
     test_command="python3 {filename}.py`",
-    exec_filename="{filename}.pyc"
+    exec_filename="{filename}.pyc",
 )
 
 
@@ -151,10 +165,10 @@ DLANG = Language(
     extension="d",
     submission_lang_pattern=re.compile(".*D \\(DMD.*"),
     default_code_generator=d.main,
-    default_template_path=get_default_template_path('d'),
+    default_template_path=get_default_template_path("d"),
     compile_command="dmd {filename}.d -of={filename}",
     test_command="{exec_filename}",
-    exec_filename="{filename}{exec_extension}"
+    exec_filename="{filename}{exec_extension}",
 )
 
 NIM = Language(
@@ -163,11 +177,11 @@ NIM = Language(
     extension="nim",
     submission_lang_pattern=re.compile(".*Nim \\(1.*"),
     default_code_generator=nim.main,
-    default_template_path=get_default_template_path('nim'),
+    default_template_path=get_default_template_path("nim"),
     default_code_style=CodeStyle(indent_width=2),
     compile_command="nim cpp -o:{filename} {filename}.nim",
     test_command="{exec_filename}",
-    exec_filename="{filename}{exec_extension}"
+    exec_filename="{filename}{exec_extension}",
 )
 
 CSHARP = Language(
@@ -176,10 +190,10 @@ CSHARP = Language(
     extension="cs",
     submission_lang_pattern=re.compile(".*C# \\(Mono.*"),
     default_code_generator=cs.main,
-    default_template_path=get_default_template_path('cs'),
+    default_template_path=get_default_template_path("cs"),
     compile_command="mcs {filename}.cs -o {filename}",
     test_command="{exec_filename}",
-    exec_filename="{filename}{exec_extension}"
+    exec_filename="{filename}{exec_extension}",
 )
 
 SWIFT = Language(
@@ -188,10 +202,10 @@ SWIFT = Language(
     extension="swift",
     submission_lang_pattern=re.compile("^Swift"),
     default_code_generator=swift.main,
-    default_template_path=get_default_template_path('swift'),
+    default_template_path=get_default_template_path("swift"),
     compile_command="swiftc {filename}.swift -o {filename}",
     test_command="{exec_filename}",
-    exec_filename="{filename}{exec_extension}"
+    exec_filename="{filename}{exec_extension}",
 )
 
 GO = Language(
@@ -200,11 +214,11 @@ GO = Language(
     extension="go",
     submission_lang_pattern=re.compile(".*Go \\(1.*"),
     default_code_generator=go.main,
-    default_template_path=get_default_template_path('go'),
+    default_template_path=get_default_template_path("go"),
     default_code_style=CodeStyle(indent_type=INDENT_TYPE_TAB),
     compile_command="go build -o {filename} {filename}.go",
     test_command="{exec_filename}",
-    exec_filename="{filename}{exec_extension}"
+    exec_filename="{filename}{exec_extension}",
 )
 
 JULIA = Language(
@@ -213,10 +227,10 @@ JULIA = Language(
     extension="jl",
     submission_lang_pattern=re.compile(".*Julia.*"),
     default_code_generator=julia.main,
-    default_template_path=get_default_template_path('jl'),
+    default_template_path=get_default_template_path("jl"),
     compile_command="",
     test_command="julia {filename}.jl",
-    exec_filename="{filename}.jl"
+    exec_filename="{filename}.jl",
 )
 
 ALL_LANGUAGES = [CPP, JAVA, RUST, PYTHON, PYPY3, NIM, DLANG, CSHARP, SWIFT, GO, JULIA]

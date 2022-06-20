@@ -2,7 +2,6 @@ from atcodertools.client.models.submission import Submission
 
 
 class Contest:
-
     def __init__(self, contest_id):
         self.contest_id = contest_id
 

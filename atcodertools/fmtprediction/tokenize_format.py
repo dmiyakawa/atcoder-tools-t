@@ -2,7 +2,10 @@ import copy
 from typing import List, Dict
 
 from atcodertools.fmtprediction.models.calculator import CalcNode, CalcParseError
-from atcodertools.fmtprediction.models.variable_token import VariableToken, TokenizedFormat
+from atcodertools.fmtprediction.models.variable_token import (
+    VariableToken,
+    TokenizedFormat,
+)
 
 from atcodertools.fmtprediction.token_manager import TokenManager
 
@@ -52,12 +55,12 @@ def _remove_spaces_in_curly_brackets(input_format):
     res = []
     nest = 0
     for c in input_format:
-        if c == '{':
+        if c == "{":
             nest += 1
-        elif c == '}':
+        elif c == "}":
             nest -= 1
 
-        if c == ' ' and nest > 0:
+        if c == " " and nest > 0:
             continue
 
         res.append(c)
@@ -66,23 +69,28 @@ def _remove_spaces_in_curly_brackets(input_format):
 
 
 def _sanitized_tokens(input_format: str) -> List[str]:
-    input_format = input_format.replace("\n", " ").replace("…", " ").replace("...", " ").replace(
-        "..", " ").replace("\\ ", " ").replace("}", "} ").replace("　", " ").replace(", ", ",")
+    input_format = (
+        input_format.replace("\n", " ")
+        .replace("…", " ")
+        .replace("...", " ")
+        .replace("..", " ")
+        .replace("\\ ", " ")
+        .replace("}", "} ")
+        .replace("　", " ")
+        .replace(", ", ",")
+    )
     input_format = _remove_spaces_in_curly_brackets(input_format)
     input_format = _divide_consecutive_vars(input_format)
     input_format = _normalize_index(input_format)
     input_format = input_format.replace("{", "").replace("}", "")
 
     tokens = [
-        x for x in input_format.split(
-        ) if x != "" and _is_ascii(
-            x) and not _is_noise(
-            x)]
+        x for x in input_format.split() if x != "" and _is_ascii(x) and not _is_noise(x)
+    ]
     return tokens
 
 
 class FormatSearcher:
-
     def __init__(self, tokens):
         self._token_manager = TokenManager(tokens)
         self._answers = None
@@ -102,7 +110,9 @@ class FormatSearcher:
             self._answers.append(TokenizedFormat(copy.deepcopy(var_token_seq)))
             return
 
-        for var_token in self._possible_var_tokens(self._token_manager.peek(), var_to_dim_num):
+        for var_token in self._possible_var_tokens(
+            self._token_manager.peek(), var_to_dim_num
+        ):
             next_var_to_dim_num = copy.deepcopy(var_to_dim_num)
             next_var_to_dim_num[var_token.var_name] = var_token.dim_num()
             try:
@@ -114,21 +124,23 @@ class FormatSearcher:
                 var_token_seq.pop()
 
     @staticmethod
-    def _possible_var_tokens(token: str, current_var_to_dim_num: Dict[str, int]) -> List[VariableToken]:
+    def _possible_var_tokens(
+        token: str, current_var_to_dim_num: Dict[str, int]
+    ) -> List[VariableToken]:
         """
         Only considers to divide the given token into at most 3 pieces (that is, to assume at most 2 dimensional indexes).
         :param token: e.g. "N", "abc_1_2" or "a_1 ... a_N"
         :param current_var_to_dim_num: utilized to detect unknown variables (for pruning purpose)
         """
         var_token_candidates = [VariableToken(token, None, None)]
-        var_token_candidates += [VariableToken(
-            token[:i],
-            token[i:],
-            None) for i in range(1, len(token))]
+        var_token_candidates += [
+            VariableToken(token[:i], token[i:], None) for i in range(1, len(token))
+        ]
         for i in range(1, len(token)):
             for j in range(i + 1, len(token)):
                 var_token_candidates += [
-                    VariableToken(token[:i], token[i:j], token[j:])]
+                    VariableToken(token[:i], token[i:j], token[j:])
+                ]
 
         def check_if_possible(var_token: VariableToken):
             # check syntax error
@@ -147,12 +159,18 @@ class FormatSearcher:
                 except CalcParseError:
                     return False
 
-            if var_token.var_name in current_var_to_dim_num \
-                    and current_var_to_dim_num[var_token.var_name] != var_token.dim_num():
+            if (
+                var_token.var_name in current_var_to_dim_num
+                and current_var_to_dim_num[var_token.var_name] != var_token.dim_num()
+            ):
                 return False
             return True
 
-        return [var_token for var_token in var_token_candidates if check_if_possible(var_token)]
+        return [
+            var_token
+            for var_token in var_token_candidates
+            if check_if_possible(var_token)
+        ]
 
 
 def search_formats_with_minimum_vars(input_format: str) -> List[TokenizedFormat]:

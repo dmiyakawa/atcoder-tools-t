@@ -14,12 +14,12 @@ def _substitute(s, reps):
     cr = {}  # fileutils to iterate through the pattern string
     while True:
         # search for next replaceable token and its prefix
-        m = re.search(r'^(.*?)\$\{(.*?)\}', s[i:], re.MULTILINE)
+        m = re.search(r"^(.*?)\$\{(.*?)\}", s[i:], re.MULTILINE)
 
         if m is None:
             break  # no more : finished
         # the list is joined using the prefix if it contains only blanks
-        sep = ('\n' + m.group(1)) if m.group(1).strip() == '' else '\n'
+        sep = ("\n" + m.group(1)) if m.group(1).strip() == "" else "\n"
 
         cr[m.group(2)] = sep.join(reps[m.group(2)])
         i += m.end()  # continue past last processed replaceable token
@@ -29,32 +29,35 @@ def _substitute(s, reps):
 def render(template, **kwargs):
     # TODO: refactoring: this should not be here.
     # TODO: refactoring: the URL should be imported from other module
-    kwargs['atcodertools'] = {
-        'version': __version__,
-        'url': 'https://github.com/kyuridenamida/atcoder-tools',
+    kwargs["atcodertools"] = {
+        "version": __version__,
+        "url": "https://github.com/kyuridenamida/atcoder-tools",
     }
 
     # Fix the ident of template
     # TODO: refactoring: this should not be here.
     indent_template = estimate_indent(template)
-    if indent_template and 'config' in kwargs:
+    if indent_template and "config" in kwargs:
         # Successfully estimated the indents of template
-        indent = kwargs['config'].indent(1)
+        indent = kwargs["config"].indent(1)
         if indent_template != indent:
             # Align the indent of template with kwargs
             def fixindent(line):
-                new_indent = ''
+                new_indent = ""
                 while line.startswith(indent_template):
-                    line = line[len(indent_template):]
+                    line = line[len(indent_template) :]
                     new_indent = new_indent + indent
                 return new_indent + line
-            template = '\n'.join(map(fixindent, template.split('\n')))
+
+            template = "\n".join(map(fixindent, template.split("\n")))
 
     if "${" in template:
         # If the template is old, render with the old engine.
         # This logic is for backward compatibility
         warnings.warn(
-            "The old template engine with ${} is deprecated. Please use the new Jinja2 template engine.", UserWarning)
+            "The old template engine with ${} is deprecated. Please use the new Jinja2 template engine.",
+            UserWarning,
+        )
 
         return old_render(template, **kwargs)
     else:
@@ -72,18 +75,22 @@ def old_render(template, **kwargs):
 
 
 def render_by_jinja(template, **kwargs):
-    return Environment(trim_blocks=True,
-                       lstrip_blocks=True).from_string(template).render(**kwargs) + "\n"
+    return (
+        Environment(trim_blocks=True, lstrip_blocks=True)
+        .from_string(template)
+        .render(**kwargs)
+        + "\n"
+    )
 
 
 def estimate_indent(code):
-    indents = re.findall(r'^([ \t]+)(?=\S)', code, re.MULTILINE)
+    indents = re.findall(r"^([ \t]+)(?=\S)", code, re.MULTILINE)
     if not indents:
-        return ''
+        return ""
     indents_concat = "".join(indents)
-    if ' ' in indents_concat and '\t' in indents_concat:
-        return ''
+    if " " in indents_concat and "\t" in indents_concat:
+        return ""
     lens = set([len(indent) for indent in indents])
     if not min(lens) * len(lens) == max(lens):
-        return ''
-    return indents[0][:min(lens)]
+        return ""
+    return indents[0][: min(lens)]

@@ -3,7 +3,11 @@ from typing import Tuple, Optional
 
 from bs4 import BeautifulSoup
 
-from atcodertools.client.models.problem_content import ProblemContent, InputFormatDetectionError, SampleDetectionError
+from atcodertools.client.models.problem_content import (
+    ProblemContent,
+    InputFormatDetectionError,
+    SampleDetectionError,
+)
 from atcodertools.common.judgetype import ErrorType, NormalJudge, DecimalJudge, Judge
 from atcodertools.common.logging import logger
 from atcodertools.constprediction.models.problem_constant_set import ProblemConstantSet
@@ -15,13 +19,11 @@ class YesNoPredictionFailedError(Exception):
 
 
 class MultipleModCandidatesError(Exception):
-
     def __init__(self, cands):
         self.cands = cands
 
 
 class MultipleLimitCandidatesError(Exception):
-
     def __init__(self, cands):
         self.cands = cands
 
@@ -31,7 +33,6 @@ class NoDecimalCandidatesError(Exception):
 
 
 class MultipleDecimalCandidatesError(Exception):
-
     def __init__(self, cands):
         self.cands = cands
 
@@ -42,22 +43,17 @@ LIMIT_ANCHORS = ["時間制限", "Time Limit"]
 
 MOD_STRATEGY_RE_LIST = [
     re.compile("([0-9]+).?.?.?で割った"),
-    re.compile("modu?l?o?[^0-9]?[^0-9]?[^0-9]?([0-9]+)")
+    re.compile("modu?l?o?[^0-9]?[^0-9]?[^0-9]?([0-9]+)"),
 ]
 
 DECIMAL_STRATEGY_RE_LIST_KEYWORD = [
     re.compile("(?:絶対|相対)誤差"),
-    re.compile("(?:absolute|relative)")
+    re.compile("(?:absolute|relative)"),
 ]
 
-DECIMAL_STRATEGY_RE_LIST_VAL = [
-    re.compile("10\^(-[0-9]+)"),
-    re.compile("1e(-[0-9]+)")
-]
+DECIMAL_STRATEGY_RE_LIST_VAL = [re.compile("10\^(-[0-9]+)"), re.compile("1e(-[0-9]+)")]
 
-LIMIT_STRATEGY_RE_LIST = [
-    re.compile("([0-9.]+)\s*sec")
-]
+LIMIT_STRATEGY_RE_LIST = [re.compile("([0-9.]+)\s*sec")]
 
 
 def is_mod_context(sentence):
@@ -83,8 +79,16 @@ def is_limit_context(sentence):
 
 def predict_modulo(html: str) -> Optional[int]:
     def normalize(sentence):
-        return sentence.replace('\\', '').replace("{", "").replace("}", "").replace(",", "").replace(" ", "").replace(
-            "10^9+7", "1000000007").lower().strip()
+        return (
+            sentence.replace("\\", "")
+            .replace("{", "")
+            .replace("}", "")
+            .replace(",", "")
+            .replace(" ", "")
+            .replace("10^9+7", "1000000007")
+            .lower()
+            .strip()
+        )
 
     soup = BeautifulSoup(html, "html.parser")
     sentences = soup.get_text().split("\n")
@@ -133,8 +137,16 @@ def predict_yes_no(html: str) -> Tuple[Optional[str], Optional[str]]:
 
 def predict_judge_method(html: str) -> Judge:
     def normalize(sentence):
-        return sentence.replace('\\', '').replace("{", "").replace("}", "").replace(",", "").replace(" ", "").replace(
-            "−", "-").lower().strip()
+        return (
+            sentence.replace("\\", "")
+            .replace("{", "")
+            .replace("}", "")
+            .replace(",", "")
+            .replace(" ", "")
+            .replace("−", "-")
+            .lower()
+            .strip()
+        )
 
     soup = BeautifulSoup(html, "html.parser")
     sentences = soup.get_text().split("\n")
@@ -173,7 +185,7 @@ def predict_judge_method(html: str) -> Judge:
                 assert is_relative
                 error_type = ErrorType.Relative
 
-            return DecimalJudge(error_type, 10.0**(int(list(decimal_val_cands)[0])))
+            return DecimalJudge(error_type, 10.0 ** (int(list(decimal_val_cands)[0])))
 
         raise MultipleDecimalCandidatesError(decimal_val_cands)
 
@@ -182,7 +194,15 @@ def predict_judge_method(html: str) -> Judge:
 
 def predict_limit(html: str) -> Optional[int]:
     def normalize(sentence):
-        return sentence.replace('\\', '').replace("{", "").replace("}", "").replace(",", "").replace(" ", "").lower().strip()
+        return (
+            sentence.replace("\\", "")
+            .replace("{", "")
+            .replace("}", "")
+            .replace(",", "")
+            .replace(" ", "")
+            .lower()
+            .strip()
+        )
 
     soup = BeautifulSoup(html, "html.parser")
     sentences = soup.get_text().split("\n")
@@ -215,22 +235,30 @@ def predict_constants(html: str) -> ProblemConstantSet:
     try:
         mod = predict_modulo(html)
     except MultipleModCandidatesError as e:
-        logger.warning("Modulo prediction failed -- "
-                       "two or more candidates {} are detected as modulo values".format(e.cands))
+        logger.warning(
+            "Modulo prediction failed -- "
+            "two or more candidates {} are detected as modulo values".format(e.cands)
+        )
         mod = None
 
     try:
         judge = predict_judge_method(html)
     except MultipleModCandidatesError as e:
-        logger.warning("decimal prediction failed -- "
-                       "two or more candidates {} are detected as decimal values".format(e.cands))
+        logger.warning(
+            "decimal prediction failed -- "
+            "two or more candidates {} are detected as decimal values".format(e.cands)
+        )
         judge = NormalJudge()
 
     try:
         timeout = predict_limit(html)
     except MultipleLimitCandidatesError as e:
-        logger.warning("limit prediction failed -- "
-                       "two or more candidates {} are detected as limit".format(e.cands))
+        logger.warning(
+            "limit prediction failed -- "
+            "two or more candidates {} are detected as limit".format(e.cands)
+        )
         timeout = None
 
-    return ProblemConstantSet(mod=mod, yes_str=yes_str, no_str=no_str, judge_method=judge, timeout=timeout)
+    return ProblemConstantSet(
+        mod=mod, yes_str=yes_str, no_str=no_str, judge_method=judge, timeout=timeout
+    )

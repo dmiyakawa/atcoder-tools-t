@@ -10,8 +10,13 @@ class ExecStatus(Enum):
 
 
 class ExecResult:
-
-    def __init__(self, status: ExecStatus, output: str = None, stderr: str = None, elapsed_sec: float = None):
+    def __init__(
+        self,
+        status: ExecStatus,
+        output: str = None,
+        stderr: str = None,
+        elapsed_sec: float = None,
+    ):
         self.status = status
         self.output = output
         self.stderr = stderr
@@ -30,16 +35,25 @@ class ExecResult:
         return len(self.stderr) > 0
 
 
-def run_program(exec_file: str, input_file: str, timeout_sec: float, args=None, current_working_dir: str = None) -> ExecResult:
+def run_program(
+    exec_file: str,
+    input_file: str,
+    timeout_sec: float,
+    args=None,
+    current_working_dir: str = None,
+) -> ExecResult:
     if args is None:
         args = []
     try:
         elapsed_sec = -time.time()
         proc = subprocess.run(
-            exec_file.split(" ") + args, stdin=open(input_file, 'r'), universal_newlines=True, timeout=timeout_sec,
+            exec_file.split(" ") + args,
+            stdin=open(input_file, "r"),
+            universal_newlines=True,
+            timeout=timeout_sec,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            cwd=current_working_dir
+            cwd=current_working_dir,
         )
 
         if proc.returncode == 0:

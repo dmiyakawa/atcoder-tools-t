@@ -4,7 +4,13 @@ from collections import OrderedDict
 
 from atcodertools.fmtprediction.models.variable import SimpleVariable
 from atcodertools.fmtprediction.models.variable_token import VariableToken
-from atcodertools.fmtprediction.models.format import SingularPattern, Format, ParallelPattern, TwoDimensionalPattern, WrongGroupingError
+from atcodertools.fmtprediction.models.format import (
+    SingularPattern,
+    Format,
+    ParallelPattern,
+    TwoDimensionalPattern,
+    WrongGroupingError,
+)
 
 
 class UnknownPeriodError(Exception):
@@ -26,7 +32,9 @@ def _predict_period(seq: List[int]):
         return 1
 
 
-def _predict_simple_format_main(var_tokens: List[VariableToken], to_1d_flag=False) -> Format[SimpleVariable]:
+def _predict_simple_format_main(
+    var_tokens: List[VariableToken], to_1d_flag=False
+) -> Format[SimpleVariable]:
     var_to_positions = {}
     var_to_simple_var = OrderedDict()
 
@@ -37,17 +45,16 @@ def _predict_simple_format_main(var_tokens: List[VariableToken], to_1d_flag=Fals
 
         if var_name not in var_to_simple_var:
             var_to_simple_var[var_name] = SimpleVariable.create(
-                var_name, var_token.dim_num())
+                var_name, var_token.dim_num()
+            )
             var_to_positions[var_name] = []
 
         var_to_positions[var_name].append(pos)
 
         if var_token.dim_num() >= 2:
-            var_to_simple_var[var_name].second_index.update(
-                var_token.second_index)
+            var_to_simple_var[var_name].second_index.update(var_token.second_index)
         if var_token.dim_num() >= 1:
-            var_to_simple_var[var_name].first_index.update(
-                var_token.first_index)
+            var_to_simple_var[var_name].first_index.update(var_token.first_index)
 
     # Building format nodes
     already_processed_vars = set()
@@ -72,8 +79,10 @@ def _predict_simple_format_main(var_tokens: List[VariableToken], to_1d_flag=Fals
             already_processed_vars.add(var_name)
         elif dim == 1:
             period = _predict_period(var_to_positions[var_name])
-            parallel_vars_group = [var_to_simple_var[token.var_name]
-                                   for token in var_tokens[pos:pos + period]]
+            parallel_vars_group = [
+                var_to_simple_var[token.var_name]
+                for token in var_tokens[pos : pos + period]
+            ]
             try:
                 root.push_back(ParallelPattern(parallel_vars_group))
             except WrongGroupingError:
@@ -88,7 +97,9 @@ def _predict_simple_format_main(var_tokens: List[VariableToken], to_1d_flag=Fals
     return root
 
 
-def predict_simple_format(var_tokens: List[VariableToken], to_1d_flag=False) -> Format[SimpleVariable]:
+def predict_simple_format(
+    var_tokens: List[VariableToken], to_1d_flag=False
+) -> Format[SimpleVariable]:
     try:
         return _predict_simple_format_main(var_tokens, to_1d_flag)
     except (WrongGroupingError, UnknownPeriodError):

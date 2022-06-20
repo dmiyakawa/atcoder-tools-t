@@ -6,9 +6,16 @@ from atcodertools.common.language import Language, CPP
 
 
 class Metadata:
-
-    def __init__(self, problem: Problem, code_filename: str, sample_in_pattern: str, sample_out_pattern: str,
-                 lang: Language, judge_method: Judge = NormalJudge(), timeout_ms: int = None):
+    def __init__(
+        self,
+        problem: Problem,
+        code_filename: str,
+        sample_in_pattern: str,
+        sample_out_pattern: str,
+        lang: Language,
+        judge_method: Judge = NormalJudge(),
+        timeout_ms: int = None,
+    ):
         self.problem = problem
         self.code_filename = code_filename
         self.sample_in_pattern = sample_in_pattern
@@ -53,7 +60,7 @@ class Metadata:
             sample_out_pattern=dic["sample_out_pattern"],
             lang=Language.from_name(dic["lang"]),
             judge_method=judge_method,
-            timeout_ms=timeout_ms
+            timeout_ms=timeout_ms,
         )
 
     @classmethod
@@ -62,12 +69,12 @@ class Metadata:
             return cls.from_dict(json.load(f))
 
     def save_to(self, filename):
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(self.to_dict(), f, indent=1, sort_keys=True)
-            f.write('\n')
+            f.write("\n")
 
 
-DEFAULT_IN_EXAMPLE_PATTERN = 'in_*.txt'
+DEFAULT_IN_EXAMPLE_PATTERN = "in_*.txt"
 DEFAULT_OUT_EXAMPLE_PATTERN = "out_*.txt"
 
 
@@ -77,5 +84,5 @@ DEFAULT_METADATA = Metadata(
     sample_in_pattern=DEFAULT_IN_EXAMPLE_PATTERN,
     sample_out_pattern=DEFAULT_OUT_EXAMPLE_PATTERN,
     lang=CPP,
-    judge_method=NormalJudge()
+    judge_method=NormalJudge(),
 )

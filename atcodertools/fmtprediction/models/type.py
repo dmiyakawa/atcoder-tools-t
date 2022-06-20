@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class Type(Enum):
-    int = 'int'
-    float = 'float'
-    str = 'str'
+    int = "int"
+    float = "float"
+    str = "str"
 
     def intersect(self, target_type):
         try:
@@ -47,5 +47,5 @@ TYPE_INTERSECTION_TABLE = {
         Type.int: Type.float,
         Type.str: Type.str,
         Type.float: Type.float,
-    }
+    },
 }

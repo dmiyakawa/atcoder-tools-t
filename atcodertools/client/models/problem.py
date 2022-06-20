@@ -2,7 +2,6 @@ from atcodertools.client.models.contest import Contest
 
 
 class Problem:
-
     def __init__(self, contest: Contest, alphabet: str, problem_id: str):
         self.contest = contest
         self.alphabet = alphabet
@@ -21,7 +20,7 @@ class Problem:
         return {
             "contest": self.contest.to_dict(),
             "problem_id": self.problem_id,
-            "alphabet": self.alphabet
+            "alphabet": self.alphabet,
         }
 
     @classmethod

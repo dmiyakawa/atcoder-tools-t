@@ -3,19 +3,23 @@ from typing import Dict, Any, Optional
 import re
 
 from atcodertools.codegen.code_style_config import CodeStyleConfig
-from atcodertools.fmtprediction.models.format import Pattern, SingularPattern, ParallelPattern, TwoDimensionalPattern, \
-    Format
+from atcodertools.fmtprediction.models.format import (
+    Pattern,
+    SingularPattern,
+    ParallelPattern,
+    TwoDimensionalPattern,
+    Format,
+)
 from atcodertools.fmtprediction.models.type import Type
 from atcodertools.fmtprediction.models.variable import Variable
 from pathlib import Path
 import toml
 
 
-class UniversalCodeGenerator():
-    def __init__(self,
-                 format_: Optional[Format[Variable]],
-                 config: CodeStyleConfig,
-                 path):
+class UniversalCodeGenerator:
+    def __init__(
+        self, format_: Optional[Format[Variable]], config: CodeStyleConfig, path
+    ):
         super(UniversalCodeGenerator, self).__init__()
         self._format = format_
         self._config = config
@@ -35,8 +39,7 @@ class UniversalCodeGenerator():
             loop_var = self.info["index"]["i"]
 
         return self.info["loop"]["header"].format(
-            loop_var=loop_var,
-            length=self._get_length(index)
+            loop_var=loop_var, length=self._get_length(index)
         )
 
     def _insert_space_around_operators(self, code: str):
@@ -55,19 +58,22 @@ class UniversalCodeGenerator():
         for pattern in self._format.sequence:
             for var in pattern.all_vars():
                 self._append(
-                    lines, self.info["global_prefix"] + self._generate_declaration(var))
+                    lines, self.info["global_prefix"] + self._generate_declaration(var)
+                )
         return "\n".join(lines)
 
     def generate_parameters(self) -> Dict[str, Any]:
         if self._format is None:
             return dict(prediction_success=False)
 
-        return dict(formal_arguments=self._formal_arguments(),
-                    actual_arguments=self._actual_arguments(),
-                    input_part=self._input_part(global_mode=False),
-                    global_declaration=self._global_declaration(),
-                    global_input_part=self._input_part(global_mode=True),
-                    prediction_success=True)
+        return dict(
+            formal_arguments=self._formal_arguments(),
+            actual_arguments=self._actual_arguments(),
+            input_part=self._input_part(global_mode=False),
+            global_declaration=self._global_declaration(),
+            global_input_part=self._input_part(global_mode=True),
+            prediction_success=True,
+        )
 
     def _input_part(self, global_mode):
         lines = []
@@ -85,8 +91,7 @@ class UniversalCodeGenerator():
             if newline_after_input:
                 lines.append("")
         result = ""
-        prefix = "{indent}".format(
-            indent=self._indent(self.info["base_indent"]))
+        prefix = "{indent}".format(indent=self._indent(self.info["base_indent"]))
         start = True
         for i, line in enumerate(lines):
             if len(line) > 0:
@@ -108,8 +113,11 @@ class UniversalCodeGenerator():
         return self.info["input_func"][type_.value]
 
     def _get_format_keywords(self, var: Variable) -> dict:
-        result = {"name": var.name, "type": self._convert_type(
-            var.type), "default": self._default_val(var.type)}
+        result = {
+            "name": var.name,
+            "type": self._convert_type(var.type),
+            "default": self._default_val(var.type),
+        }
         if "input_func" in self.info:
             result["input_func"] = self._get_input_func(var.type)
         if var.dim_num() == 0:
@@ -117,8 +125,12 @@ class UniversalCodeGenerator():
         elif var.dim_num() == 1:
             result["length"] = self._get_length(var.first_index)
         elif var.dim_num() == 2:
-            result.update({"length_i": self._get_length(
-                var.first_index), "length_j": self._get_length(var.second_index)})
+            result.update(
+                {
+                    "length_i": self._get_length(var.first_index),
+                    "length_j": self._get_length(var.second_index),
+                }
+            )
         else:
             raise NotImplementedError
         # TODO: index_i, index_jは含めなくていいか？
@@ -141,7 +153,7 @@ class UniversalCodeGenerator():
 
     def _actual_arguments(self) -> str:
         """
-            :return the string form of actual arguments e.g. "N, K, a"
+        :return the string form of actual arguments e.g. "N, K, a"
         """
         ret = []
         for v in self._format.all_vars():
@@ -150,15 +162,14 @@ class UniversalCodeGenerator():
             else:
                 kind = self._get_variable_kind(v)
                 if "actual_arg" in self.info:
-                    ret.append(
-                        self.info["actual_arg"][kind].format(name=v.name))
+                    ret.append(self.info["actual_arg"][kind].format(name=v.name))
                 else:
                     ret.append(v.name)
         return ", ".join(ret)
 
     def _formal_arguments(self):
         """
-            :return the string form of formal arguments e.g. "int N, int K, std::vector<int> a"
+        :return the string form of formal arguments e.g. "int N, int K, std::vector<int> a"
         """
         return ", ".join([self._get_argument(v) for v in self._format.all_vars()])
 
@@ -174,7 +185,9 @@ class UniversalCodeGenerator():
         """
         :return: Create allocation part E.g. array[1..n] -> std::vector<int> array = std::vector<int>(n-1+1);
         """
-        if var.dim_num() == 0:  # ほとんどの言語ではint, float, stringは宣言したら確保もされるはず、そうでない言語だったらこれだとまずそう
+        if (
+            var.dim_num() == 0
+        ):  # ほとんどの言語ではint, float, stringは宣言したら確保もされるはず、そうでない言語だったらこれだとまずそう
             return ""
         else:
             kwd = self._get_format_keywords(var)
@@ -185,7 +198,9 @@ class UniversalCodeGenerator():
         """
         :return: Create declaration part E.g. array[1..n] -> std::vector<int> array = std::vector<int>(n-1+1);
         """
-        if var.dim_num() == 0:  # ほとんどの言語ではint, float, stringは宣言したら確保もされるはず、そうでない言語だったらこれだとまずそう
+        if (
+            var.dim_num() == 0
+        ):  # ほとんどの言語ではint, float, stringは宣言したら確保もされるはず、そうでない言語だったらこれだとまずそう
             return self.info["declare"][var.type.value].format(name=var.name)
         else:
             kwd = self._get_format_keywords(var)
@@ -202,9 +217,15 @@ class UniversalCodeGenerator():
         if var.dim_num() == 0:
             return name
         elif var.dim_num() == 1:
-            return self.info["access"]["seq"].format(name=name, index=self.info["index"]["i"])
+            return self.info["access"]["seq"].format(
+                name=name, index=self.info["index"]["i"]
+            )
         elif var.dim_num() == 2:
-            return self.info["access"]["2d_seq"].format(name=name, index_i=self.info["index"]["i"], index_j=self.info["index"]["j"])
+            return self.info["access"]["2d_seq"].format(
+                name=name,
+                index_i=self.info["index"]["i"],
+                index_j=self.info["index"]["j"],
+            )
         else:
             raise NotImplementedError
 
@@ -213,8 +234,9 @@ class UniversalCodeGenerator():
             return
         for line in s.split("\n"):
             if len(lines) > 0:
-                lines.append("{indent}{line}".format(indent=self._indent(indent),
-                                                     line=line))
+                lines.append(
+                    "{indent}{line}".format(indent=self._indent(indent), line=line)
+                )
             else:
                 lines.append(line)
 
@@ -224,8 +246,7 @@ class UniversalCodeGenerator():
                 self._append(lines, self._generate_allocation(var))
         else:
             for var in pattern.all_vars():
-                self._append(
-                    lines, self._generate_declaration_and_allocation(var))
+                self._append(lines, self._generate_declaration_and_allocation(var))
 
     def _append_singular_pattern(self, lines, pattern: Pattern, global_mode):
         var = pattern.all_vars()[0]
@@ -233,7 +254,8 @@ class UniversalCodeGenerator():
             if "declare_and_input" in self.info:
                 kwd = self._get_format_keywords(var)
                 self._append(
-                    lines, self.info["declare_and_input"][var.type.value].format(**kwd))
+                    lines, self.info["declare_and_input"][var.type.value].format(**kwd)
+                )
                 return
         self._append_declaration_and_allocation(lines, pattern, global_mode)
         self._append(lines, self._input_code_for_var(var))
@@ -257,10 +279,8 @@ class UniversalCodeGenerator():
                     self._append(lines, self.info[op]["seq"].format(**kwd))
                     added = True
             if not added:
-                self._append_declaration_and_allocation(
-                    lines, pattern, global_mode)
-                self._append(lines, self._loop_header(
-                    representative_var, False))
+                self._append_declaration_and_allocation(lines, pattern, global_mode)
+                self._append(lines, self._loop_header(representative_var, False))
                 for var in pattern.all_vars():
                     self._append(lines, self._input_code_for_var(var), 1)
                 self._append(lines, self.info["loop"]["footer"].format())
@@ -277,19 +297,25 @@ class UniversalCodeGenerator():
                     self._append(lines, self.info[op]["2d_seq"].format(**kwd))
                     added = True
             if not added:
-                self._append_declaration_and_allocation(
-                    lines, pattern, global_mode)
-                self._append(
-                    lines, self._loop_header(representative_var, False))
-                self._append(
-                    lines, self._loop_header(representative_var, True), 1)
+                self._append_declaration_and_allocation(lines, pattern, global_mode)
+                self._append(lines, self._loop_header(representative_var, False))
+                self._append(lines, self._loop_header(representative_var, True), 1)
                 for var in pattern.all_vars():
                     self._append(lines, self._input_code_for_var(var), 2)
                 # loop_varを指定してるのはVisual Basicなどfooterにループの変数書かなきゃいけない言語向けのつもり
-                self._append(lines, self.info["loop"]["footer"].format(
-                    loop_var=self.info["index"]["j"]), 1)
-                self._append(lines, self.info["loop"]["footer"].format(
-                    loop_var=self.info["index"]["i"]))
+                self._append(
+                    lines,
+                    self.info["loop"]["footer"].format(
+                        loop_var=self.info["index"]["j"]
+                    ),
+                    1,
+                )
+                self._append(
+                    lines,
+                    self.info["loop"]["footer"].format(
+                        loop_var=self.info["index"]["i"]
+                    ),
+                )
         else:
             raise NotImplementedError
 
@@ -300,7 +326,9 @@ class UniversalCodeGenerator():
 
 
 def get_builtin_code_generator_info_toml_path(lang):
-    return Path(__file__).parent / "universal_generator" / "{lang}.toml".format(lang=lang)
+    return (
+        Path(__file__).parent / "universal_generator" / "{lang}.toml".format(lang=lang)
+    )
 
 
 class NoPredictionResultGiven(Exception):

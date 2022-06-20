@@ -57,7 +57,6 @@ def _operator_to_string(operator):
 
 
 class CalcNode:
-
     def __init__(self, content=None, operator=None, lch=None, rch=None):
         self.content = content
         self.lch = lch
@@ -84,9 +83,9 @@ class CalcNode:
         cands = []
         original_formula = self.to_string_strictly()
         for i, c in enumerate(original_formula):
-            if c == '(':
+            if c == "(":
                 opens.append(i)
-            elif c == ')':
+            elif c == ")":
                 assert len(opens) > 0
                 cands.append((opens[-1], i))
                 opens.pop()
@@ -97,7 +96,9 @@ class CalcNode:
         def likely_identical(formula: str):
             node = CalcNode.parse(formula)
             vars = node.get_all_variables()
-            for combination in itertools.product(values_for_identity_check, repeat=len(vars)):
+            for combination in itertools.product(
+                values_for_identity_check, repeat=len(vars)
+            ):
                 val_dict = dict(zip(vars, list(combination)))
                 if self.evaluate(val_dict) != node.evaluate(val_dict):
                     return False
@@ -107,8 +108,8 @@ class CalcNode:
         res_formula = list(original_formula)
         for op, cl in cands:
             tmp = res_formula.copy()
-            tmp[op] = ''
-            tmp[cl] = ''
+            tmp[op] = ""
+            tmp[cl] = ""
             if likely_identical("".join(tmp)):
                 res_formula = tmp
         simplified_form = "".join(res_formula)
@@ -137,7 +138,8 @@ class CalcNode:
         else:
             if self.content not in variables:
                 raise EvaluateError(
-                    "Found an unknown variable '{}'".format(self.content))
+                    "Found an unknown variable '{}'".format(self.content)
+                )
             else:
                 return variables[self.content]
 
@@ -161,7 +163,7 @@ class CalcNode:
             return "({lch}{op}{rch})".format(
                 lch=self.lch.to_string_strictly(),
                 op=_operator_to_string(self.operator),
-                rch=self.rch.to_string_strictly()
+                rch=self.rch.to_string_strictly(),
             )
         else:
             return str(self.content)
@@ -176,9 +178,9 @@ class CalcNode:
 
 def _expr(formula, pos):
     res, pos = _term(formula, pos)
-    while formula[pos] == '+' or formula[pos] == '-':
+    while formula[pos] == "+" or formula[pos] == "-":
         tmp = CalcNode()
-        tmp.operator = add if formula[pos] == '+' else sub
+        tmp.operator = add if formula[pos] == "+" else sub
         pos += 1
         tmp.lch = res
         tmp.rch, pos = _term(formula, pos)
@@ -188,9 +190,9 @@ def _expr(formula, pos):
 
 def _term(formula, pos):
     res, pos = _factor(formula, pos)
-    while formula[pos] == '*' or formula[pos] == '/':
+    while formula[pos] == "*" or formula[pos] == "/":
         tmp = CalcNode()
-        tmp.operator = mul if formula[pos] == '*' else div
+        tmp.operator = mul if formula[pos] == "*" else div
         pos += 1
         tmp.lch = res
         tmp.rch, pos = _factor(formula, pos)
@@ -199,23 +201,23 @@ def _term(formula, pos):
 
 
 def _factor(formula, pos):
-    if formula[pos] == '(':
+    if formula[pos] == "(":
         pos += 1
         res, pos = _expr(formula, pos)
-        if formula[pos] != ')':
+        if formula[pos] != ")":
             raise CalcParseError
         pos += 1
         return res, pos
     elif formula[pos].isalpha():
         varname = ""
-        while formula[pos].isalpha() or formula[pos] == '_':
+        while formula[pos].isalpha() or formula[pos] == "_":
             varname += formula[pos]
             pos += 1
         res = CalcNode()
         res.content = varname
         return res, pos
-    elif formula[pos].isdigit() or formula[pos] == '-':
-        if formula[pos] == '-':
+    elif formula[pos].isdigit() or formula[pos] == "-":
+        if formula[pos] == "-":
             sign = -1
             pos += 1
             if not formula[pos].isdigit():
@@ -228,7 +230,7 @@ def _factor(formula, pos):
             pos += 1
         value *= sign
 
-        if formula[pos].isalpha() or formula[pos] == '(':
+        if formula[pos].isalpha() or formula[pos] == "(":
             # pattern like "123A"
             tmp = CalcNode()
             tmp.content = value

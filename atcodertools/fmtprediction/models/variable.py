@@ -5,11 +5,9 @@ from atcodertools.fmtprediction.models.type import Type
 
 
 class SimpleVariable:
-
-    def __init__(self,
-                 name: str,
-                 first_index: Optional[Index],
-                 second_index: Optional[Index]):
+    def __init__(
+        self, name: str, first_index: Optional[Index], second_index: Optional[Index]
+    ):
         self.name = name
         self.first_index = first_index
         self.second_index = second_index
@@ -39,13 +37,15 @@ class SimpleVariable:
 class Variable(SimpleVariable):
 
     """
-        SimpleVariable + type information
+    SimpleVariable + type information
     """
 
-    def __init__(self,
-                 name: str,
-                 first_index: Optional[Index],
-                 second_index: Optional[Index],
-                 type_: Type):
+    def __init__(
+        self,
+        name: str,
+        first_index: Optional[Index],
+        second_index: Optional[Index],
+        type_: Type,
+    ):
         super().__init__(name, first_index, second_index)
         self.type = type_

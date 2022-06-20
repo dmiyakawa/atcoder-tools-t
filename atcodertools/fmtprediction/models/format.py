@@ -7,11 +7,10 @@ class WrongGroupingError(Exception):
     pass
 
 
-T = TypeVar('T')  # T must be Variable or SimpleVariable
+T = TypeVar("T")  # T must be Variable or SimpleVariable
 
 
 class Pattern(Generic[T]):
-
     def all_vars(self) -> List[T]:
         raise NotImplementedError
 
@@ -105,17 +104,19 @@ class ParallelPattern(Pattern):
                 raise WrongGroupingError("dim_num must be 1")
             if var.first_index.min_index != first_var.first_index.min_index:
                 raise WrongGroupingError(
-                    "some pair of first indices has different min values")
+                    "some pair of first indices has different min values"
+                )
             if var.first_index.max_index != first_var.first_index.max_index:
                 raise WrongGroupingError(
-                    "some pair of first indices has different max values")
+                    "some pair of first indices has different max values"
+                )
         return first_var.first_index
 
     def __str__(self):
         return "(Parallel: {names} | {min} to {max})".format(
             names=",".join([str(c.name) for c in self.vars]),
             min=str(self.loop_index.min_index),
-            max=str(self.loop_index.max_index)
+            max=str(self.loop_index.max_index),
         )
 
     def all_vars(self):

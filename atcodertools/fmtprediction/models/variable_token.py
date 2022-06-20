@@ -12,7 +12,9 @@ class VariableToken:
     This class supports up to 2 dimensions.
     """
 
-    def __init__(self, var_name: str, first_index: Optional[str], second_index: Optional[str]):
+    def __init__(
+        self, var_name: str, first_index: Optional[str], second_index: Optional[str]
+    ):
         def normalize(x: str):
             if x is None:
                 return None
@@ -54,12 +56,11 @@ class VariableToken:
             return False
         if not index[-1].isalpha() and not index[-1].isdigit():
             return False
-        if index.find(',') != -1:
+        if index.find(",") != -1:
             return False
         return True
 
 
 class TokenizedFormat:
-
     def __init__(self, var_tokens: List[VariableToken]):
         self.var_tokens = var_tokens
